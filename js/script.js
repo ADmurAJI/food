@@ -47,11 +47,20 @@ window.addEventListener('DOMContentLoaded', () => {
   // Получаем оставшиеся дни, часы, минуты, секунды
 
   function getTimeRemaining(endtime) {
-    const time = Date.parse(endtime) - Date.parse(new Date()),
-      days = Math.floor(time / (1000 * 60 * 60 * 24)),
-      hours = Math.floor((time / (1000 * 60 * 60)) % 24),
-      minutes = Math.floor((time / (1000 * 60)) % 60),
-      seconds = Math.floor((time / 1000) % 60);
+    let days, hours, minutes, seconds;
+
+    const time = Date.parse(endtime) - Date.parse(new Date());
+
+    // Если акция закончилась
+
+    if (time <= 0) {
+      (days = 0), (hours = 0), (minutes = 0), (seconds = 0);
+    } else {
+      (days = Math.floor(time / (1000 * 60 * 60 * 24))),
+        (hours = Math.floor((time / (1000 * 60 * 60)) % 24)),
+        (minutes = Math.floor((time / (1000 * 60)) % 60)),
+        (seconds = Math.floor((time / 1000) % 60));
+    }
 
     return {
       time,
@@ -89,18 +98,6 @@ window.addEventListener('DOMContentLoaded', () => {
     function updateClock() {
       const time = getTimeRemaining(endtime);
 
-      // Склонение слов
-
-      // const say = document.querySelector('.timer__text');
-
-      // function declensionWord(num, word) {
-      //   const cases = [2, 0, 1, 1, 1, 2];
-      //   const words = [word, word + 'а', word + 'ов'];
-      //   let index =
-      //     num % 100 > 4 && num % 100 < 20 ? 2 : cases[Math.min(num % 10, 5)];
-      //   return words[index];
-      // }
-
       days.innerHTML = getZero(time.days);
       hours.innerHTML = getZero(time.hours);
       minutes.innerHTML = getZero(time.minutes);
@@ -115,4 +112,55 @@ window.addEventListener('DOMContentLoaded', () => {
   }
 
   setClock('.timer', deadline);
+
+  // Модальное окно
+
+  const modalTrigger = document.querySelectorAll('[data-modal]'),
+    modalCloseBtn = document.querySelector('[data-close]'),
+    modal = document.querySelector('.modal');
+
+  // Открываем окно
+
+  function openModal() {
+    modal.classList.remove('hide'), modal.classList.add('show');
+    document.body.style.overflow = 'hidden';
+    clearInterval(modalTimerId);
+  }
+
+  modalTrigger.forEach((btn) => btn.addEventListener('click', openModal));
+
+  const modalTimerId = setTimeout(openModal, 10000);
+
+  function openModalByScroll() {
+    if (
+      window.pageYOffset + document.documentElement.clientHeight >=
+      document.documentElement.scrollHeight - 1
+    ) {
+      openModal();
+      window.removeEventListener('scroll', openModalByScroll);
+      clearInterval(modalTimerId);
+    }
+  }
+  window.addEventListener('scroll', openModalByScroll);
+
+  // Закрываем окно
+
+  function closeModal() {
+    modal.classList.remove('show'), modal.classList.add('hide');
+    document.body.style.overflow = '';
+  }
+
+  modalCloseBtn.addEventListener('click', closeModal);
+
+  modal.addEventListener('click', (e) => {
+    if (e.target === modal) {
+      closeModal();
+    }
+  });
+
+  document.addEventListener('keydown', (e) => {
+    if (e.code === 'Escape' && modal.classList.contains('show')) {
+      closeModal();
+    }
+  });
 });
