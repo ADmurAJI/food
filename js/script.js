@@ -261,10 +261,6 @@ window.addEventListener('DOMContentLoaded', () => {
       `;
       form.insertAdjacentElement('afterend', statusMessage);
 
-      const request = new XMLHttpRequest();
-      request.open('POST', 'server.php');
-
-      request.setRequestHeader('Content-type', 'application/json');
       const formData = new FormData(form);
 
       const object = {};
@@ -272,24 +268,85 @@ window.addEventListener('DOMContentLoaded', () => {
         object[key] = value;
       });
 
-      const json = JSON.stringify(object);
-
-      request.send(json);
-
-      request.addEventListener('load', () => {
-        if (request.status === 200) {
+      fetch('server.php', {
+        method: 'POST',
+        headers: {
+          'Content-type': 'application/json',
+        },
+        body: JSON.stringify(object),
+      })
+        .then((data) => data.text())
+        .then((data) => {
+          console.log(data);
           showThanksModal(message.success);
           // Очистить форму
-          form.reset();
           statusMessage.remove();
-        } else {
+        })
+        .catch(() => {
           showThanksModal(message.failure);
-          form.reset();
           statusMessage.remove();
-        }
-      });
+        })
+        .finally(() => {
+          form.reset();
+        });
     });
   }
+
+  // Старый способо с XML
+
+  // const forms = document.querySelectorAll('form');
+
+  // forms.forEach((item) => {
+  //   postData(item);
+  // });
+
+  // const message = {
+  //   loading: 'img/form/spinner.svg',
+  //   success: 'Спасибо! Скоро мы с Вами свяжемся.',
+  //   failure: 'Что-то пошло не так...',
+  // };
+
+  // function postData(form) {
+  //   form.addEventListener('submit', (e) => {
+  //     e.preventDefault();
+
+  //     const statusMessage = document.createElement('img');
+  //     statusMessage.src = message.loading;
+  //     statusMessage.style.cssText = `
+  //       display: block;
+  //       margin: 0 auto;
+  //     `;
+  //     form.insertAdjacentElement('afterend', statusMessage);
+
+  //     const request = new XMLHttpRequest();
+  //     request.open('POST', 'server.php');
+
+  //     request.setRequestHeader('Content-type', 'application/json');
+  //     const formData = new FormData(form);
+
+  //     const object = {};
+  //     formData.forEach(function (key, value) {
+  //       object[key] = value;
+  //     });
+
+  //     const json = JSON.stringify(object);
+
+  //     request.send(json);
+
+  //     request.addEventListener('load', () => {
+  //       if (request.status === 200) {
+  //         showThanksModal(message.success);
+  //         // Очистить форму
+  //         form.reset();
+  //         statusMessage.remove();
+  //       } else {
+  //         showThanksModal(message.failure);
+  //         form.reset();
+  //         statusMessage.remove();
+  //       }
+  //     });
+  //   });
+  // }
 
   // Диалоговое окно отправки формы
 
