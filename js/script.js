@@ -206,60 +206,60 @@ window.addEventListener('DOMContentLoaded', () => {
   }
 
   // Получение данных с сервера
-  const getRecource = async (url) => {
-    const resoult = await fetch(url);
+  // const getRecource = async (url) => {
+  //   const resoult = await fetch(url);
 
-    if (!resoult.ok) {
-      throw new Error(
-        `Не смог получить данные с ${url}, статус ошибки: ${resoult.status}`
-      );
-    }
+  //   if (!resoult.ok) {
+  //     throw new Error(
+  //       `Не смог получить данные с ${url}, статус ошибки: ${resoult.status}`
+  //     );
+  //   }
 
-    return await resoult.json();
-  };
+  //   return await resoult.json();
+  // };
 
-  getRecource('http://localhost:3000/menu').then((data) => {
-    data.forEach(({ img, altimg, title, descr, price }) => {
-      new MenuCard(
-        img,
-        altimg,
-        title,
-        descr,
-        price,
-        '.menu .container'
-      ).render();
-    });
-  });
+  // getRecource('http://localhost:3000/menu').then((data) => {
+  //   data.forEach(({ img, altimg, title, descr, price }) => {
+  //     new MenuCard(
+  //       img,
+  //       altimg,
+  //       title,
+  //       descr,
+  //       price,
+  //       '.menu .container'
+  //     ).render();
+  //   });
+  // });
 
-  // new MenuCard(
-  //   'img/tabs/vegy.jpg',
-  //   'vegy',
-  //   'Меню "Фитнес"',
-  //   'Меню "Фитнес" - это новый подход к приготовлению блюд: больше свежих овощей и фруктов. Продукт активных и здоровых людей. Это абсолютно новый продукт с оптимальной ценой и высоким качеством!',
-  //   6,
-  //   '.menu .container'
-  //   //'menu__item'
-  // ).render();
+  new MenuCard(
+    'img/tabs/vegy.jpg',
+    'vegy',
+    'Меню "Фитнес"',
+    'Меню "Фитнес" - это новый подход к приготовлению блюд: больше свежих овощей и фруктов. Продукт активных и здоровых людей. Это абсолютно новый продукт с оптимальной ценой и высоким качеством!',
+    6,
+    '.menu .container'
+    //'menu__item'
+  ).render();
 
-  // new MenuCard(
-  //   'img/tabs/elite.jpg',
-  //   'elite',
-  //   'Меню “Премиум”"',
-  //   'В меню “Премиум” мы используем не только красивый дизайн упаковки, но и качественное исполнение блюд. Красная рыба, морепродукты, свежее отборное мясо, фрукты - ресторанное меню без похода в ресторан!',
-  //   11,
-  //   '.menu .container',
-  //   'menu__item'
-  // ).render();
+  new MenuCard(
+    'img/tabs/elite.jpg',
+    'elite',
+    'Меню “Премиум”"',
+    'В меню “Премиум” мы используем не только красивый дизайн упаковки, но и качественное исполнение блюд. Красная рыба, морепродукты, свежее отборное мясо, фрукты - ресторанное меню без похода в ресторан!',
+    11,
+    '.menu .container',
+    'menu__item'
+  ).render();
 
-  // new MenuCard(
-  //   'img/tabs/post.jpg',
-  //   'post',
-  //   'Меню "Постное""',
-  //   'Меню “Постное” - это тщательный подбор ингредиентов: полное отсутствие продуктов животного происхождения, молоко из миндаля, овса, кокоса или гречки, правильное количество белков за счет тофу и импортных вегетарианских стейков.',
-  //   7,
-  //   '.menu .container',
-  //   'menu__item'
-  // ).render();
+  new MenuCard(
+    'img/tabs/post.jpg',
+    'post',
+    'Меню "Постное""',
+    'Меню “Постное” - это тщательный подбор ингредиентов: полное отсутствие продуктов животного происхождения, молоко из миндаля, овса, кокоса или гречки, правильное количество белков за счет тофу и импортных вегетарианских стейков.',
+    7,
+    '.menu .container',
+    'menu__item'
+  ).render();
 
   // Отправка данных с форм
 
@@ -536,6 +536,8 @@ window.addEventListener('DOMContentLoaded', () => {
     }
   }
 
+  // Навигаци при клике на точки
+
   dots.forEach((dot) => {
     dot.addEventListener('click', function (e) {
       const slideTo = e.target.getAttribute('data-slide-to');
@@ -556,4 +558,86 @@ window.addEventListener('DOMContentLoaded', () => {
       dots[slideIndex - 1].style.opacity = 1;
     });
   });
+
+  // Калькулятор калорий
+
+  const result = document.querySelector('.calculating__result span');
+  let sex = 'woman',
+    height,
+    weight,
+    age,
+    ratio = 1.375;
+
+  // Функция расчёта
+
+  function calcTotal() {
+    if (!sex || !height || !weight || !age || !ratio) {
+      result.textContent = '____';
+      return;
+    }
+    if (sex === 'woman') {
+      result.textContent = Math.round(
+        (447.6 + 9.2 * weight + 3.1 * height - 4.3 * age) * ratio
+      );
+    } else if (sex === 'man') {
+      result.textContent = Math.round(
+        (88.36 + 13.4 * weight + 4.8 * height - 5.7 * age) * ratio
+      );
+    }
+  }
+
+  calcTotal();
+
+  // Полученеи статичных данных
+
+  function getStaticInformation(parentSelector, activeClass) {
+    const elements = document.querySelectorAll(`${parentSelector} div`);
+
+    elements.forEach((element) => {
+      element.addEventListener('click', (e) => {
+        if (e.target.getAttribute('data-ratio')) {
+          ratio = e.target.getAttribute('data-ratio');
+        } else {
+          sex = e.target.getAttribute('id');
+        }
+
+        elements.forEach((element) => {
+          element.classList.remove(activeClass);
+        });
+        e.target.classList.add(activeClass);
+
+        calcTotal();
+      });
+    });
+  }
+  getStaticInformation('#gender', 'calculating__choose-item_active');
+  getStaticInformation(
+    '.calculating__choose_big',
+    'calculating__choose-item_active'
+  );
+
+  // Получение динамичных данных с input
+
+  function getDynamicInformation(selector) {
+    const input = document.querySelector(selector);
+
+    input.addEventListener('input', () => {
+      switch (input.getAttribute('id')) {
+        case 'height':
+          height = +input.value;
+          break;
+        case 'weight':
+          weight = +input.value;
+          break;
+        case 'age':
+          age = +input.value;
+          break;
+      }
+      calcTotal();
+    });
+  }
+
+  getDynamicInformation('#height');
+  getDynamicInformation('#weight');
+  getDynamicInformation('#age');
 });
