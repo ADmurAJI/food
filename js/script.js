@@ -113,7 +113,7 @@ window.addEventListener('DOMContentLoaded', () => {
 
   setClock('.timer', deadline);
 
-  // Модальное окно
+  // Модальное окно /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
   const modalTrigger = document.querySelectorAll('[data-modal]'),
     modal = document.querySelector('.modal');
@@ -161,7 +161,7 @@ window.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  // Классы для карточек
+  // Классы для карточек //////////////////////////////////////////////////////////////////////////////////////////////////
 
   class MenuCard {
     constructor(src, alt, title, descr, price, parentSelector, ...classes) {
@@ -261,7 +261,7 @@ window.addEventListener('DOMContentLoaded', () => {
     'menu__item'
   ).render();
 
-  // Отправка данных с форм
+  // Отправка данных с форм ///////////////////////////////////////////////////////////////////////////////////////////////////
 
   const forms = document.querySelectorAll('form');
 
@@ -379,7 +379,7 @@ window.addEventListener('DOMContentLoaded', () => {
   //   });
   // }
 
-  // Диалоговое окно отправки формы
+  // Диалоговое окно отправки формы ////////////////////////////////////////////////////////////////////////////////////////
 
   function showThanksModal(message) {
     const modalDialog = document.querySelector('.modal__dialog');
@@ -409,7 +409,7 @@ window.addEventListener('DOMContentLoaded', () => {
     .then((data) => data.json())
     .then((res) => console.log(res));
 
-  // Слайдер
+  // Слайдер ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
   const slides = document.querySelectorAll('.offer__slide'),
     slider = document.querySelector('.offer__slider'),
@@ -559,14 +559,50 @@ window.addEventListener('DOMContentLoaded', () => {
     });
   });
 
-  // Калькулятор калорий
+  // Калькулятор калорий ///////////////////////////////////////////////////////////////////////////////////////
 
   const result = document.querySelector('.calculating__result span');
-  let sex = 'woman',
-    height,
-    weight,
-    age,
+  let sex, height, weight, age, ratio;
+
+  // Запоминаем выбор пользователя
+
+  if (localStorage.getItem('sex')) {
+    sex = localStorage.getItem('sex');
+  } else {
+    sex = 'women';
+    localStorage.setItem('sex', 'women');
+  }
+
+  if (localStorage.getItem('ratio')) {
+    ratio = localStorage.getItem('ratio');
+  } else {
     ratio = 1.375;
+    localStorage.setItem('ratio', 1.375);
+  }
+
+  // Фиксируем класс активности на элементе, выбранным пользователем
+
+  function initLocalSettings(selector, activeClass) {
+    const elements = document.querySelectorAll(selector);
+
+    elements.forEach((element) => {
+      element.classList.remove(activeClass);
+      if (element.getAttribute('id') === localStorage.getItem('sex')) {
+        element.classList.add(activeClass);
+      }
+      if (
+        element.getAttribute('data-ratio') === localStorage.getItem('ratio')
+      ) {
+        element.classList.add(activeClass);
+      }
+    });
+  }
+
+  initLocalSettings('#gender div', 'calculating__choose-item_active');
+  initLocalSettings(
+    '.calculating__choose_big div',
+    'calculating__choose-item_active'
+  );
 
   // Функция расчёта
 
@@ -590,15 +626,17 @@ window.addEventListener('DOMContentLoaded', () => {
 
   // Полученеи статичных данных
 
-  function getStaticInformation(parentSelector, activeClass) {
-    const elements = document.querySelectorAll(`${parentSelector} div`);
+  function getStaticInformation(selector, activeClass) {
+    const elements = document.querySelectorAll(selector);
 
     elements.forEach((element) => {
       element.addEventListener('click', (e) => {
         if (e.target.getAttribute('data-ratio')) {
-          ratio = e.target.getAttribute('data-ratio');
+          ratio = +e.target.getAttribute('data-ratio');
+          localStorage.setItem('ratio', +e.target.getAttribute('data-ratio'));
         } else {
           sex = e.target.getAttribute('id');
+          localStorage.setItem('sex', e.target.getAttribute('id'));
         }
 
         elements.forEach((element) => {
@@ -610,9 +648,9 @@ window.addEventListener('DOMContentLoaded', () => {
       });
     });
   }
-  getStaticInformation('#gender', 'calculating__choose-item_active');
+  getStaticInformation('#gender div', 'calculating__choose-item_active');
   getStaticInformation(
-    '.calculating__choose_big',
+    '.calculating__choose_big div',
     'calculating__choose-item_active'
   );
 
@@ -622,6 +660,14 @@ window.addEventListener('DOMContentLoaded', () => {
     const input = document.querySelector(selector);
 
     input.addEventListener('input', () => {
+      // Проверка на правильность ввода
+
+      if (input.value.match(/\D/g)) {
+        input.style.border = '1px solid red';
+      } else {
+        input.style.border = 'none';
+      }
+
       switch (input.getAttribute('id')) {
         case 'height':
           height = +input.value;
